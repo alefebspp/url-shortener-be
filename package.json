@@ -1,0 +1,35 @@
+{
+  "name": "url-shortener-be",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "biome check --write .",
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "check-types": "npm run check-types --workspaces",
+    "dev:native": "npm run dev --workspace native",
+    "dev:web": "npm run dev --workspace web",
+    "dev:server": "npm run dev --workspace server",
+    "db:push": "npm run db:push --workspace @url-shortener-be/db",
+    "db:studio": "npm run db:studio --workspace @url-shortener-be/db",
+    "db:generate": "npm run db:generate --workspace @url-shortener-be/db",
+    "db:migrate": "npm run db:migrate --workspace @url-shortener-be/db",
+    "db:start": "npm run db:start --workspace @url-shortener-be/db",
+    "db:watch": "npm run db:watch --workspace @url-shortener-be/db",
+    "db:stop": "npm run db:stop --workspace @url-shortener-be/db",
+    "db:down": "npm run db:down --workspace @url-shortener-be/db"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@types/node": "^22.13.11"
+  },
+  "packageManager": "npm@10.5.0"
+}

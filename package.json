@@ -3,11 +3,12 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "build": "tsdown",
+    "build": "tsup",
     "check-types": "tsc -b",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
+    "worker": "node dist/worker.js",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
@@ -16,7 +17,7 @@
     "db:watch": "docker compose up",
     "db:stop": "docker compose stop",
     "db:down": "docker compose down",
-    "worker": "tsx src/work-runner.ts",
+    "worker:dev": "tsx src/work-runner.ts",
     "test": "vitest",
     "test:watch": "vitest --watch"
   },
@@ -35,6 +36,7 @@
     "pg": "^8.14.1",
     "redis": "^5.9.0",
     "supertest": "^7.1.4",
+    "tsup": "^8.3.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -42,7 +44,6 @@
     "@types/pg": "^8.11.11",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.2",
-    "tsdown": "^0.16.5",
     "tsx": "^4.19.2",
     "typescript": "^5.8.2",
     "vite-tsconfig-paths": "^5.1.4",

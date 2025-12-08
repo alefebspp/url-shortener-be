@@ -1,0 +1,47 @@
+name: url-shortener
+
+services:
+  postgres:
+    image: postgres
+    container_name: url-shortener-postgres
+    environment:
+      POSTGRES_DB: url-shortener
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - url-shortener_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: url-shortener-redis
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 256mb
+      --maxmemory-policy noeviction
+      --requirepass redispassword
+    environment:
+      REDIS_PASSWORD: redispassword
+    ports:
+      - "6379:6379" # Remova em produção se usar rede privada
+    volumes:
+      - url-shortener_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redispassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  url-shortener_postgres_data:
+  url-shortener_redis_data:

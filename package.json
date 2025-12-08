@@ -1,35 +1,51 @@
 {
-  "name": "url-shortener-be",
-  "private": true,
+  "name": "server",
+  "main": "src/index.ts",
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "check": "biome check --write .",
-    "dev": "npm run dev --workspaces",
-    "build": "npm run build --workspaces",
-    "check-types": "npm run check-types --workspaces",
-    "dev:native": "npm run dev --workspace native",
-    "dev:web": "npm run dev --workspace web",
-    "dev:server": "npm run dev --workspace server",
-    "db:push": "npm run db:push --workspace @url-shortener-be/db",
-    "db:studio": "npm run db:studio --workspace @url-shortener-be/db",
-    "db:generate": "npm run db:generate --workspace @url-shortener-be/db",
-    "db:migrate": "npm run db:migrate --workspace @url-shortener-be/db",
-    "db:start": "npm run db:start --workspace @url-shortener-be/db",
-    "db:watch": "npm run db:watch --workspace @url-shortener-be/db",
-    "db:stop": "npm run db:stop --workspace @url-shortener-be/db",
-    "db:down": "npm run db:down --workspace @url-shortener-be/db"
+    "build": "tsdown",
+    "check-types": "tsc -b",
+    "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:start": "docker compose up -d",
+    "db:watch": "docker compose up",
+    "db:stop": "docker compose stop",
+    "db:down": "docker compose down",
+    "worker": "tsx src/work-runner.ts",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger-ui": "^5.2.3",
+    "bullmq": "^5.65.1",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^17.2.2",
-    "zod": "^4.1.11"
+    "drizzle-orm": "^0.44.7",
+    "fastify": "^5.3.3",
+    "fastify-type-provider-zod": "^6.1.0",
+    "nanoid": "^5.1.6",
+    "pg": "^8.14.1",
+    "redis": "^5.9.0",
+    "supertest": "^7.1.4",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.0",
-    "@types/node": "^22.13.11"
-  },
-  "packageManager": "npm@10.5.0"
+    "@types/node": "^22.13.11",
+    "@types/pg": "^8.11.11",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.2",
+    "tsdown": "^0.16.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.0.8"
+  }
 }

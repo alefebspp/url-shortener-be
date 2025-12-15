@@ -8,7 +8,6 @@
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
-    "prestart": "npm run db:push",
     "worker": "node dist/worker.js",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",

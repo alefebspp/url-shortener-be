@@ -12,10 +12,13 @@ export async function createShortLinkHandler(
 ) {
   const body = createShortLinkSchema.parse(request.body);
 
-  const { shortLink } = await shortLinkService.createShortLink(
-    shortLinkRepo,
-    body as CreateShortLinkPayload
-  );
+  const forbiddenUrls = process.env.FORBIDDEN_URLS?.split(",") ?? [];
+
+  const { shortLink } = await shortLinkService.createShortLink({
+    repo: shortLinkRepo,
+    data: body as CreateShortLinkPayload,
+    forbiddenUrls,
+  });
 
   return reply.status(HTTP_STATUS.CREATED).send({ data: shortLink });
 }

@@ -7,4 +7,5 @@ export const SHORT_LINK_ERROR_MESSAGES = {
   SHORT_LINK_EXPIRED: "Link curto expirado",
   MAXIMUM_CLICKS_EXCEEDED: "Link curto alcançou o máximo de cliques",
   INVALID_URL: "URL deve começar com http:// ou https://",
+  FORBIDDEN_URL: "URL não permitida",
 } as const;

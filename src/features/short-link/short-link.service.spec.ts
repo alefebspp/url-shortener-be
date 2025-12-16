@@ -32,7 +32,7 @@ vi.mock("redis", () => {
   };
 });
 
-const { redis } = await import("@/lib/redis");
+import { redis } from "@/lib/redis";
 
 vi.mock("@/lib/bullmq/queues/increment-link-click-queue", () => ({
   incrementClickQueue: {
@@ -42,10 +42,25 @@ vi.mock("@/lib/bullmq/queues/increment-link-click-queue", () => ({
 
 describe("Short Link Service", () => {
   describe("createShortLink", () => {
+    it("should throw error if destination is a forbidden url", async () => {
+      await expect(
+        shortLinkService.createShortLink({
+          repo: shortLinkRepo,
+          data: {
+            destination: "http://localhost:3000/api/links/redirect/code",
+          },
+          forbiddenUrls: ["http://localhost:3000"],
+        })
+      ).rejects.toBeInstanceOf(BadRequestError);
+    });
+
     it("should throw error if destination is a invalid url", async () => {
       await expect(
-        shortLinkService.createShortLink(shortLinkRepo, {
-          destination: "invalid-url",
+        shortLinkService.createShortLink({
+          repo: shortLinkRepo,
+          data: {
+            destination: "invalid-url",
+          },
         })
       ).rejects.toBeInstanceOf(BadRequestError);
     });
@@ -60,27 +75,36 @@ describe("Short Link Service", () => {
       });
 
       await expect(
-        shortLinkService.createShortLink(shortLinkRepo, {
-          destination: "https://example.com",
-          customAlias: "my-custom-alias",
+        shortLinkService.createShortLink({
+          repo: shortLinkRepo,
+          data: {
+            destination: "https://example.com",
+            customAlias: "my-custom-alias",
+          },
         })
       ).rejects.toBeInstanceOf(BadRequestError);
     });
 
     it("should throw error if custom alias has invalid characters", async () => {
       await expect(
-        shortLinkService.createShortLink(shortLinkRepo, {
-          destination: "https://example.com",
-          customAlias: "my-custom-alias%",
+        shortLinkService.createShortLink({
+          repo: shortLinkRepo,
+          data: {
+            destination: "https://example.com",
+            customAlias: "my-custom-alias%",
+          },
         })
       ).rejects.toBeInstanceOf(BadRequestError);
     });
 
     it("should throw error if expiresAt is before actual Date", async () => {
       await expect(
-        shortLinkService.createShortLink(shortLinkRepo, {
-          destination: "https://example.com",
-          expiresAt: fromZonedTime(new Date(Date.now() - 1000), "UTC"),
+        shortLinkService.createShortLink({
+          repo: shortLinkRepo,
+          data: {
+            destination: "https://example.com",
+            expiresAt: fromZonedTime(new Date(Date.now() - 1000), "UTC"),
+          },
         })
       ).rejects.toBeInstanceOf(BadRequestError);
     });
@@ -98,8 +122,11 @@ describe("Short Link Service", () => {
         update: vi.fn(),
       };
 
-      await shortLinkService.createShortLink(shortLinkRepo, {
-        destination: "https://example.com",
+      await shortLinkService.createShortLink({
+        repo: shortLinkRepo,
+        data: {
+          destination: "https://example.com",
+        },
       });
 
       const { nanoid } = await import("nanoid");

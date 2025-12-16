@@ -1,3 +1,5 @@
+import { ShortLinkRepository } from "./repository/short-link.repository";
+
 export type CreateShortLinkPayload = {
   code: string;
   destination: string;
@@ -15,3 +17,9 @@ export type CreateShortLinkServicePayload = Pick<
 >;
 
 export type UpdateShortLinkPayload = Partial<CreateShortLinkPayload>;
+
+export type CreateShortLinkParams = {
+  repo: ShortLinkRepository;
+  data: CreateShortLinkServicePayload;
+  forbiddenUrls?: string[];
+};

@@ -5,16 +5,21 @@ import { fromZonedTime } from "date-fns-tz";
 import { redis } from "@/lib/redis";
 
 import type { ShortLinkRepository } from "./repository/short-link.repository";
-import type { CreateShortLinkServicePayload } from "./types";
+import type { CreateShortLinkParams } from "./types";
 import { BadRequestError, NotFoundError } from "@/errors";
 import { SHORT_LINK_ERROR_MESSAGES } from "@/constants/link";
 import type { ShortLink } from "./short-link.model";
 import { incrementClickQueue } from "@/lib/bullmq/queues/increment-link-click-queue";
 
-export async function createShortLink(
-  repo: ShortLinkRepository,
-  data: CreateShortLinkServicePayload
-) {
+function isForbiddenUrl(url: string, forbiddenList: string[]) {
+  return forbiddenList.some((forbidden) => url.includes(forbidden));
+}
+
+export async function createShortLink({
+  repo,
+  data,
+  forbiddenUrls,
+}: CreateShortLinkParams) {
   let expiresAt = data.expiresAt as Date | undefined;
 
   if (
@@ -22,6 +27,10 @@ export async function createShortLink(
     !data.destination.startsWith("https://")
   ) {
     throw new BadRequestError(SHORT_LINK_ERROR_MESSAGES.INVALID_URL);
+  }
+
+  if (isForbiddenUrl(data.destination, forbiddenUrls || [])) {
+    throw new BadRequestError(SHORT_LINK_ERROR_MESSAGES.FORBIDDEN_URL);
   }
 
   if (data.customAlias) {

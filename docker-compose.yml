@@ -2,18 +2,18 @@ name: url-shortener
 
 services:
   postgres:
-    image: postgres
+    image: postgres:16
     container_name: url-shortener-postgres
     environment:
-      POSTGRES_DB: url-shortener
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - url-shortener_postgres_data:/var/lib/postgresql
+      - url-shortener_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,15 +28,15 @@ services:
       --appendfsync everysec
       --maxmemory 256mb
       --maxmemory-policy noeviction
-      --requirepass redispassword
+      --requirepass ${REDIS_PASSWORD}
     environment:
-      REDIS_PASSWORD: redispassword
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
-      - "6379:6379" # Remova em produção se usar rede privada
+      - "6379:6379"
     volumes:
       - url-shortener_redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "redispassword", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5

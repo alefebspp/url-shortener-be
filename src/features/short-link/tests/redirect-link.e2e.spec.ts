@@ -1,11 +1,11 @@
-import { afterAll, beforeAll, beforeEach, expect, it, describe } from "vitest";
+import { afterAll, beforeAll, afterEach, expect, it, describe } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { fromZonedTime } from "date-fns-tz";
 
 import { buildApp } from "@/index";
 import { db } from "@/db";
 import { shortLinkTable } from "@/db/schema/short-link";
-import * as shortLinkRepository from "./repository/drizzle-short-link.repository";
+import * as shortLinkRepository from "../repository/drizzle-short-link.repository";
 import { SHORT_LINK_ERROR_MESSAGES } from "@/constants/link";
 import { redis } from "@/lib/redis";
 
@@ -18,77 +18,15 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await app.close();
+  await redis.quit();
 });
 
-beforeEach(async () => {
+afterEach(async () => {
   await db.delete(shortLinkTable);
   await redis.flushAll();
 });
 
-describe("Short Link Controller E2E", () => {
-  it("should create a short link", async () => {
-    const response = await app.inject({
-      method: "POST",
-      url: "/api/links",
-      payload: {
-        destination: "https://google.com",
-      },
-    });
-
-    expect(response.statusCode).toBe(201);
-
-    const body = response.json();
-
-    expect(body.data.destination).toBe("https://google.com");
-
-    const dbLink = await shortLinkRepository.findByCode(body.data.code);
-
-    expect(dbLink).not.toBeNull();
-  });
-
-  it("should return a error if custom alias already exists", async () => {
-    await shortLinkRepository.createShortLink({
-      destination: "https://example.com",
-      code: "myCode",
-    });
-
-    const response = await app.inject({
-      method: "POST",
-      url: "/api/links",
-      payload: {
-        destination: "https://google.com",
-        customAlias: "myCode",
-      },
-    });
-
-    expect(response.statusCode).toBe(400);
-
-    const body = response.json();
-
-    expect(body.message).toBe(
-      SHORT_LINK_ERROR_MESSAGES.CUSTOM_ALIAS_ALREADY_EXISTS
-    );
-  });
-
-  it("should return a error if expirestAt is in the past", async () => {
-    const response = await app.inject({
-      method: "POST",
-      url: "/api/links",
-      payload: {
-        destination: "https://google.com",
-        expiresAt: "2000-01-01T00:00:00.000Z",
-      },
-    });
-
-    expect(response.statusCode).toBe(400);
-
-    const body = response.json();
-
-    expect(body.message).toBe(
-      SHORT_LINK_ERROR_MESSAGES.EXPIRATION_DATE_IN_PAST
-    );
-  });
-
+describe("GET /api/links/redirect/:code - E2E", () => {
   it("should return a error if code does not exists", async () => {
     const response = await app.inject({
       method: "GET",
@@ -105,13 +43,13 @@ describe("Short Link Controller E2E", () => {
   it("should return a error if code is expired", async () => {
     await shortLinkRepository.createShortLink({
       destination: "https://example.com",
-      code: "myCode",
+      code: "myCode2",
       expiresAt: fromZonedTime(new Date(Date.now() - 1000), "UTC"),
     });
 
     const response = await app.inject({
       method: "GET",
-      url: "/api/links/redirect/myCode",
+      url: "/api/links/redirect/myCode2",
     });
 
     expect(response.statusCode).toBe(400);

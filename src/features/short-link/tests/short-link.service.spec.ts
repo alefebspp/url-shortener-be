@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import * as shortLinkService from "./short-link.service";
+import * as shortLinkService from "../short-link.service";
 import { BadRequestError, NotFoundError } from "@/errors";
 import { fromZonedTime } from "date-fns-tz";
 

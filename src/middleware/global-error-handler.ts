@@ -11,8 +11,6 @@ export function globalErrorHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  console.log("ERROR:", error);
-
   if (error instanceof AppError) {
     return reply.status(error.statusCode).send({ message: error.message });
   }

@@ -1,0 +1,47 @@
+name: url-shortener-e2e
+
+services:
+  postgres-e2e:
+    image: postgres:16
+    container_name: url-shortener-e2e-postgres
+    environment:
+      POSTGRES_DB: e2edb
+      POSTGRES_USER: usere2e
+      POSTGRES_PASSWORD: passworde2e
+    ports:
+      - "5432:5432"
+    volumes:
+      - url-shortener-e2e_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usere2e"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis-e2e:
+    image: redis:7
+    container_name: url-shortener-e2e-redis
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 256mb
+      --maxmemory-policy noeviction
+      --requirepass e2epassword
+    environment:
+      REDIS_PASSWORD: e2epassword
+    ports:
+      - "6379:6379"
+    volumes:
+      - url-shortener-e2e_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "e2epassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  url-shortener-e2e_postgres_data:
+  url-shortener-e2e_redis_data:

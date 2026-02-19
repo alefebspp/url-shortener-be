@@ -8,8 +8,6 @@ export const shortLinkClicksWorker = new Worker(
   async (job) => {
     const { id, code } = job.data;
 
-    console.log("WORKER DATA:", job.data);
-
     const redisKey = `shortlink-clicks:${code}`;
 
     const clicks = Number(await redis.get(redisKey));

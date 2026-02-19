@@ -19,8 +19,13 @@
     "db:stop": "docker compose stop",
     "db:down": "docker compose down",
     "worker:dev": "tsx src/work-runner.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
+    "test:e2e:wait": "./scripts/wait-for-db.sh",
+    "test:e2e:up": "docker compose -f docker-compose.e2e.yml up -d",
+    "test:e2e:down": "docker compose -f docker-compose.e2e.yml down -v",
+    "test:e2e:migrate": "DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/.bin/drizzle-kit push",
+    "test:e2e": "npm run test:e2e:up && npm run test:e2e:wait && npm run test:e2e:migrate && npm run test && npm run test:e2e:down"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.1",
